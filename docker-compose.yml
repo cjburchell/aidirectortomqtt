@@ -1,0 +1,18 @@
+version: '3'
+services:
+  homeassistant:
+    container_name: homeassistant
+    image: "ghcr.io/home-assistant/home-assistant:stable"
+    restart: unless-stopped
+    privileged: true
+  mosquitto:
+    image: eclipse-mosquitto
+    container_name: mosquitto
+    ports:
+      - 1883:1883
+      - 9001:9001
+  ai-mqtt:
+    build: .
+    environment:
+      - MQTT_HOST=localhost
+      - DIRECTOR_HOST=192.168.3.104
