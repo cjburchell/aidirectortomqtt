@@ -160,13 +160,13 @@ func (profiMqtt *AiMqtt) UpdateHomeAssistant(aiDirector AquaIllumination.Directo
 					deviceModel = "Hydra 52"
 				}
 
-				deviceName := fmt.Sprintf("%s %X", deviceModel, device.DeviceId)
+				deviceName := fmt.Sprintf("%s %s %X", tank.TankName, deviceModel, device.DeviceId)
 				deviceId := fmt.Sprintf("%d", device.DeviceId)
 
 				deviceHASS := Device{
 					Identifiers:  deviceId,
 					Version:      aiDirector.Version,
-					Name:         fmt.Sprintf("%s %s", tank.TankName, deviceName),
+					Name:         deviceName,
 					Model:        deviceModel,
 					Manufacturer: "Aqua Illumination",
 				}
@@ -176,7 +176,7 @@ func (profiMqtt *AiMqtt) UpdateHomeAssistant(aiDirector AquaIllumination.Directo
 				fanConfig := HaStateConfig{
 					HaBaseConfig: HaBaseConfig{
 						Device:              deviceHASS,
-						Name:                fmt.Sprintf("Fan"),
+						Name:                fmt.Sprintf("%s Fan", deviceName),
 						UniqueId:            strings.ToLower(fmt.Sprintf("%d_fan", device.DeviceId)),
 						AvailabilityTopic:   "aimqtt/status",
 						PayloadAvailable:    "online",
@@ -192,7 +192,7 @@ func (profiMqtt *AiMqtt) UpdateHomeAssistant(aiDirector AquaIllumination.Directo
 				signalConfig := HaStateConfig{
 					HaBaseConfig: HaBaseConfig{
 						Device:              deviceHASS,
-						Name:                fmt.Sprintf("Signal Strength"),
+						Name:                fmt.Sprintf("%s Signal Strength", deviceName),
 						UniqueId:            strings.ToLower(fmt.Sprintf("%d_signal", device.DeviceId)),
 						AvailabilityTopic:   "aimqtt/status",
 						PayloadAvailable:    "online",
@@ -209,11 +209,12 @@ func (profiMqtt *AiMqtt) UpdateHomeAssistant(aiDirector AquaIllumination.Directo
 				modeConfig := HaSwitchConfig{
 					HaBaseConfig: HaBaseConfig{
 						Device:              deviceHASS,
-						Name:                fmt.Sprintf("Manual Mode"),
+						Name:                fmt.Sprintf("%s Manual Mode", deviceName),
 						UniqueId:            strings.ToLower(fmt.Sprintf("%d_mode", device.DeviceId)),
 						AvailabilityTopic:   "aimqtt/status",
 						PayloadAvailable:    "online",
 						PayloadNotAvailable: "offline",
+						Icon:                "mdi:wrench",
 					},
 					StateTopic:   deviceTopic + "/manualMode",
 					CommandTopic: deviceTopic + "/manualModeCommand",
@@ -228,7 +229,7 @@ func (profiMqtt *AiMqtt) UpdateHomeAssistant(aiDirector AquaIllumination.Directo
 					lightConfig := HaLightConfig{
 						HaBaseConfig: HaBaseConfig{
 							Device:              deviceHASS,
-							Name:                strings.Title(strings.Replace(color.Color, "_", " ", -1)),
+							Name:                fmt.Sprintf("%s %s", deviceName, strings.Title(strings.Replace(color.Color, "_", " ", -1))),
 							UniqueId:            strings.ToLower(fmt.Sprintf("%d_%s_light", device.DeviceId, sanitize(color.Color))),
 							AvailabilityTopic:   "aimqtt/status",
 							PayloadAvailable:    "online",
