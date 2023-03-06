@@ -146,7 +146,7 @@ func RunUpdate(client http.Client, mqttClient mqtt.Client, log logger.ILog, conf
 			log.Debug("Exit Application")
 			return
 		case <-time.After(logRate):
-			log.Print("Updating State")
+			log.Debug("Updating State")
 			var result, err = AquaIllumination.GetAll(client, config.DirectorHost)
 			if err != nil {
 				log.Errorf(err, "Unable to update state")
