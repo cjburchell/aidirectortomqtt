@@ -19,17 +19,17 @@ import (
 import "github.com/cjburchell/settings-go"
 
 func main() {
+	set := settings.Get(env.Get("ConfigFile", ""))
 	log := logger.Create(logger.Settings{
-		MinLogLevel:  logger.INFO,
+		MinLogLevel:  logger.GetLogLevel(set.Get("MinLogLevel", logger.INFO.Text)),
 		ServiceName:  "AI Director to MQTT",
 		LogToConsole: true,
 		UseHTTP:      false,
 		UsePubSub:    false,
 	})
-
-	fmt.Printf("This is a test")
-	set := settings.Get(env.Get("ConfigFile", ""))
+	log.Printf("Starting Up!")
 	appConfig := appSettings.Get(set)
+
 	mqttOptions := mqtt.NewClientOptions().AddBroker(fmt.Sprintf("mqtt://%s:%d", appConfig.MqttHost, appConfig.MqttPort)).SetClientID("ai-mqtt")
 	mqttOptions.SetOrderMatters(false)       // Allow out of order messages (use this option unless in order delivery is essential)
 	mqttOptions.ConnectTimeout = time.Second // Minimal delays on connect
@@ -125,7 +125,7 @@ func RunUpdateConfig(client http.Client, mqttClient mqtt.Client, log logger.ILog
 			log.Debug("Exit Application")
 			return
 		case <-time.After(logAllRate):
-			log.Print("Updating Config")
+			log.Debug("Updating Config")
 			var result, err = AquaIllumination.GetAll(client, config.DirectorHost)
 			if err != nil {
 				log.Errorf(err, "Unable to update")
