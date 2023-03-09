@@ -48,13 +48,16 @@ func SetAIData(client http.Client, host string, path string, payload interface{}
 	return nil
 }
 
-func SetManualMode(groupId int, toggle bool, client http.Client, log logger.ILog, host string) {
+func SetManualMode(groupId int, toggle bool, client http.Client, log logger.ILog, host string) error {
 	var mode AiMode
 	mode.Mode = !toggle
 	err := SetAIData(client, host, fmt.Sprintf("groups/%d/mode", groupId), mode)
 	if err != nil {
 		log.Error(err, "unable to set mode for group %d", groupId)
+		return err
 	}
+
+	return nil
 }
 
 func ToggleLight(groupId int, colorId string, toggle bool, client http.Client, log logger.ILog, host string) {
@@ -67,19 +70,30 @@ func ToggleLight(groupId int, colorId string, toggle bool, client http.Client, l
 		colors.Colors[0].Intensity = 0
 	}
 
-	err := SetAIData(client, host, fmt.Sprintf("groups/%d/led/intensity/colors", groupId), colors)
+	err := SetManualMode(groupId, true, client, log, host)
+	if err != nil {
+		return
+	}
+
+	err = SetAIData(client, host, fmt.Sprintf("groups/%d/led/intensity/colors", groupId), colors)
 	if err != nil {
 		log.Error(err, "unable to set mode for group %d", groupId)
 	}
 }
 
 func SetIntensity(groupId int, colorId string, payload string, client http.Client, log logger.ILog, host string) {
+
+	err := SetManualMode(groupId, true, client, log, host)
+	if err != nil {
+		return
+	}
+
 	var colors AiColors
 	colors.Colors = make([]AiColor, 1)
 	colors.Colors[0].Color = colorId
 	intensity, _ := strconv.Atoi(payload)
 	colors.Colors[0].Intensity = intensity
-	err := SetAIData(client, host, fmt.Sprintf("groups/%d/led/intensity/colors", groupId), colors)
+	err = SetAIData(client, host, fmt.Sprintf("groups/%d/led/intensity/colors", groupId), colors)
 	if err != nil {
 		log.Error(err, "unable to set mode for group %d", groupId)
 	}
