@@ -31,7 +31,9 @@ func main() {
 	appConfig := appSettings.Get(set)
 
 	mqttOptions := mqtt.NewClientOptions().AddBroker(fmt.Sprintf("mqtt://%s:%d", appConfig.MqttHost, appConfig.MqttPort)).SetClientID("ai-mqtt")
-	mqttOptions.SetOrderMatters(false)       // Allow out of order messages (use this option unless in order delivery is essential)
+	mqttOptions.SetOrderMatters(false) // Allow out of order messages (use this option unless in order delivery is essential)
+	mqttOptions.Username = appConfig.MqttUser
+	mqttOptions.Password = appConfig.MqttPassword
 	mqttOptions.ConnectTimeout = time.Second // Minimal delays on connect
 	mqttOptions.WriteTimeout = time.Second   // Minimal delays on writes
 	mqttOptions.KeepAlive = 10               // Keepalive every 10 seconds so we quickly detect network outages
